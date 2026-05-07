@@ -1,0 +1,51 @@
+<div class="min-h-screen py-8 px-4">
+  <div class="max-w-3xl mx-auto">
+
+    <div class="mb-8">
+      <p class="text-xs uppercase tracking-widest text-gray-400">Manage Account</p>
+    </div>
+
+    <div>
+      <%- include('../components/profile/updateAvatar') %>
+      <%- include('../components/profile/updateName') %>
+      <%- include('../components/profile/updateEmail') %>
+      <%- include('../components/profile/updatePassword') %>
+      <%- include('../components/profile/deleteAccount') %>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+  function clearErrors(fields) {
+    fields.forEach(id => {
+      const el = document.getElementById(`${id}-error`);
+      if (el) {
+        el.textContent = '';
+        el.classList.add('hidden');
+      }
+    });
+  }
+
+  function showErrors(errors) {
+    Object.keys(errors).forEach(field => {
+      const el = document.getElementById(`${field}-error`);
+      if (el) {
+        el.textContent = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
+        el.classList.remove('hidden');
+      }
+    });
+  }
+
+  function toast(icon, text, timer = 3000) {
+    Swal.fire({
+      icon,
+      text,
+      toast: true,
+      position: 'bottom-end',
+      showConfirmButton: false,
+      timer
+    });
+  }
+</script>

@@ -1,0 +1,48 @@
+<div class="rounded-2xl overflow-hidden mb-4" style="background: #1c1917;">
+  <div class="px-5 py-4 border-b border-white/[0.06]">
+    <p class="text-[10px] uppercase tracking-widest text-stone-600 mb-0.5">Email address</p>
+    <p class="text-[13px] text-stone-500">A verification email will be sent to the new address.</p>
+  </div>
+  <div class="px-5 py-4 border-b border-white/[0.06]">
+    <input
+      id="email-input"
+      type="email"
+      value="<%= user.email %>"
+      class="w-full rounded-xl px-3 py-2.5 text-[13px] text-stone-200 outline-none border-none transition-colors"
+      style="background: #292524;"
+    />
+    <p class="text-red-500 text-[12px] mt-1.5 hidden" id="email-error"></p>
+  </div>
+  <div class="px-5 py-3 flex justify-end">
+    <button
+      id="save-email-btn"
+      onclick="updateEmail()"
+      class="flex items-center gap-2 px-5 py-2 rounded-xl text-[13px] font-medium text-white border-none cursor-pointer transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+      style="background: #E24B4A;"
+    >
+      Update email
+    </button>
+  </div>
+</div>
+
+<script>
+  async function updateEmail() {
+    const btn = document.getElementById('save-email-btn');
+    clearErrors(['email']);
+    btn.disabled = true;
+    try {
+      await axios.patch('/profile/email', {
+        email: document.getElementById('email-input').value,
+      }, {
+        headers: { 'x-csrf-token': csrfToken }
+      });
+      toast('success', 'Verification email sent. Please check your inbox.');
+    } catch (err) {
+      if (err.response?.data?.errors)
+        showErrors(err.response.data.errors);
+      else toast('error', 'Something went wrong. Please try again.');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>

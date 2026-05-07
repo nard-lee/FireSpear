@@ -1,0 +1,256 @@
+<div class="max-w-3xl mx-auto">
+  <div class="rounded-2xl p-4">
+
+    <!-- Trigger -->
+    <button onclick="openModal()" class="flex items-center gap-2.5 cursor-pointer">
+      <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background: #E24B4A;">
+        <i class="fa-solid fa-plus text-white text-xs"></i>
+      </div>
+    </button>
+
+  </div>
+</div>
+</div>
+
+<!-- Backdrop -->
+<div id="modal-backdrop" onclick="closeModal()" class="hidden fixed inset-0 z-40" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);"></div>
+
+<!-- Modal -->
+<div id="post-modal" class="hidden fixed z-50 w-full max-w-lg rounded-2xl p-6" style="background: #1c1917; top: 50%; left: 50%; transform: translate(-50%, -50%); max-height: 90vh; overflow-y: auto;">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-5">
+    <span class="text-stone-100 text-[15px] font-medium">Create Post</span>
+    <button onclick="closeModal()" class="p-1.5 rounded-lg text-stone-500 hover:text-stone-300 hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer">
+      <i class="fa-solid fa-xmark text-base"></i>
+    </button>
+  </div>
+
+  <!-- User + Textarea -->
+  <div class="flex items-start gap-3 mb-4">
+    <div class="flex-shrink-0">
+      <% if (user.avatar) { %>
+      <img src="<%= user.avatar %>" class="w-10 h-10 rounded-full object-cover" alt="<%= user.name %>" />
+      <% } else { %>
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-medium text-white" style="background: #E24B4A;">
+        <%= user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) %>
+      </div>
+      <% } %>
+    </div>
+
+    <textarea id="post-content" placeholder="What's on your mind?" rows="4" maxlength="1000" class="w-full bg-transparent border-none rounded-xl px-3 py-2 outline-none text-stone-100 text-[15px] placeholder-stone-500 resize-none leading-relaxed" style="font-family: inherit; overflow: hidden; min-height: 80px;"></textarea>
+  </div>
+
+  <!-- Photo Preview -->
+  <div id="photo-preview" class="grid gap-2 mb-3" style="grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));"></div>
+  <div id="photo-clear-row" class="hidden mb-3">
+    <button type="button" onclick="clearPhotos()" class="flex items-center gap-1.5 text-[12px] text-stone-600 hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer p-0">
+      <i class="fa-solid fa-xmark text-[11px]"></i>
+      Clear images
+    </button>
+  </div>
+
+  <div class="h-px bg-white/[0.07] mb-4"></div>
+
+  <!-- Emoji Picker -->
+  <div id="emoji-picker-container" class="hidden mb-3">
+    <div class="relative flex items-center">
+      <button type="button" onclick="scrollEmojis(-1)" class="flex-shrink-0 p-1.5 rounded-lg text-stone-600 hover:text-stone-400 hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer">
+        <i class="fa-solid fa-chevron-left text-[11px]"></i>
+      </button>
+      <div id="emoji-row" class="flex gap-0.5 overflow-x-auto flex-1 mx-1" style="scrollbar-width: none; -ms-overflow-style: none;"></div>
+      <button type="button" onclick="scrollEmojis(1)" class="flex-shrink-0 p-1.5 rounded-lg text-stone-600 hover:text-stone-400 hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer">
+        <i class="fa-solid fa-chevron-right text-[11px]"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Toolbar + Submit -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-0.5">
+      <label for="photo-upload" class="flex items-center p-2 rounded-lg text-stone-600 hover:text-stone-400 hover:bg-white/5 transition-colors cursor-pointer">
+        <i class="fa-regular fa-image text-base"></i>
+        <input type="file" id="photo-upload" name="photos" multiple accept="image/*" class="hidden" onchange="handlePhotos(this)" />
+      </label>
+      <button type="button" onclick="togglePicker()" class="p-2 rounded-lg text-stone-600 hover:text-stone-400 hover:bg-white/5 transition-colors bg-transparent border-none cursor-pointer">
+        <i class="fa-regular fa-face-smile text-base"></i>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/10 text-stone-400 text-[12px] bg-transparent hover:bg-white/5 transition-colors cursor-pointer">
+        <i class="fa-solid fa-earth-americas text-[10px]"></i>
+        Everyone
+        <i class="fa-solid fa-chevron-down text-[9px]"></i>
+      </button>
+      <span id="char-count" class="text-[12px] text-stone-600">1000</span>
+      <button type="button" id="submit-btn" disabled onclick="submitPost()" class="flex items-center gap-2 px-5 py-2 rounded-xl text-[13px] font-medium text-white border-none cursor-not-allowed transition-colors duration-150" style="background: #57534e;">
+        <i id="submit-icon" class="fa-solid fa-paper-plane text-[11px]"></i>
+        <span id="submit-label">Post</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ── Setup ─────────────────────────────────────────────────────────────────
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+    const modal = document.getElementById('post-modal');
+    const backdrop = document.getElementById('modal-backdrop');
+    const contentEl = document.getElementById('post-content');
+    const submitBtn = document.getElementById('submit-btn');
+    const submitIcon = document.getElementById('submit-icon');
+    const submitLabel = document.getElementById('submit-label');
+    const charCount = document.getElementById('char-count');
+    const pickerContainer = document.getElementById('emoji-picker-container');
+    const emojiRow = document.getElementById('emoji-row');
+    const photoPreview = document.getElementById('photo-preview');
+    const photoClearRow = document.getElementById('photo-clear-row');
+
+    const selectedFiles = [];
+
+    // ── Modal ─────────────────────────────────────────────────────────────────
+    function openModal() {
+      modal.classList.remove('hidden');
+      backdrop.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      contentEl.focus();
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      backdrop.classList.add('hidden');
+      document.body.style.overflow = '';
+      clearForm();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // ── Emoji ─────────────────────────────────────────────────────────────────
+    const emojis = [
+      '😀', '😂', '🤣', '😊', '😍', '🥰', '😘', '😭', '😢', '😩', '😤', '😠', '🤬',
+      '😱', '😨', '🤔', '🙄', '😴', '🤯', '🥳', '😎', '🤩', '🥺', '😏', '🫡', '🫠',
+      '💀', '👍', '👎', '👏', '🙏', '💪', '🔥', '💯', '❤️', '💔', '✨', '🎉', '👀', '💅', '🫶'
+    ];
+
+    emojis.forEach(e => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = e;
+      btn.className = 'text-xl p-1.5 rounded-lg hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer flex-shrink-0';
+      btn.onclick = () => insertEmoji(e);
+      emojiRow.appendChild(btn);
+    });
+
+    function togglePicker() {
+      pickerContainer.classList.toggle('hidden');
+    }
+
+    function scrollEmojis(dir) {
+      emojiRow.scrollBy({
+        left: dir * 120,
+        behavior: 'smooth'
+      });
+    }
+
+    function insertEmoji(emoji) {
+      const pos = contentEl.selectionStart;
+      contentEl.value = contentEl.value.slice(0, pos) + emoji + contentEl.value.slice(pos);
+      contentEl.selectionStart = contentEl.selectionEnd = pos + emoji.length;
+      contentEl.focus();
+      onInput();
+    }
+
+    // ── Textarea ──────────────────────────────────────────────────────────────
+    contentEl.addEventListener('input', onInput);
+
+    function onInput() {
+      contentEl.style.height = 'auto';
+      contentEl.style.height = contentEl.scrollHeight + 'px';
+
+      const remaining = 1000 - contentEl.value.length;
+      charCount.textContent = remaining;
+      charCount.classList.toggle('text-red-500', remaining < 100);
+      charCount.classList.toggle('text-stone-600', remaining >= 100);
+
+      const hasContent = contentEl.value.trim().length > 0;
+      submitBtn.disabled = !hasContent;
+      submitBtn.style.background = hasContent ? '#E24B4A' : '#57534e';
+      submitBtn.style.cursor = hasContent ? 'pointer' : 'not-allowed';
+    }
+
+    // ── Photos ────────────────────────────────────────────────────────────────
+    function handlePhotos(input) {
+      [...input.files].forEach(file => {
+        const idx = selectedFiles.push(file) - 1;
+        const item = document.createElement('div');
+        item.className = 'relative rounded-xl overflow-hidden aspect-square';
+        item.style.background = '#292524';
+        item.dataset.index = idx;
+        item.innerHTML = `
+        <img src="${URL.createObjectURL(file)}" class="w-full h-full object-cover" />
+        <button type="button" onclick="removePhoto(this)" class="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center border-none cursor-pointer text-[10px] text-stone-100" style="background:rgba(0,0,0,0.7);">
+          <i class="fa-solid fa-xmark"></i>
+        </button>`;
+        photoPreview.appendChild(item);
+      });
+      input.value = '';
+      photoClearRow.classList.remove('hidden');
+    }
+
+    function removePhoto(btn) {
+      const item = btn.closest('[data-index]');
+      selectedFiles[item.dataset.index] = null;
+      item.remove();
+      if (!selectedFiles.filter(Boolean).length) photoClearRow.classList.add('hidden');
+    }
+
+    function clearPhotos() {
+      photoPreview.innerHTML = '';
+      selectedFiles.length = 0;
+      photoClearRow.classList.add('hidden');
+    }
+
+    // ── Clear ─────────────────────────────────────────────────────────────────
+    function clearForm() {
+      contentEl.value = '';
+      contentEl.style.height = 'auto';
+      clearPhotos();
+      pickerContainer.classList.add('hidden');
+      onInput();
+    }
+
+    // ── Submit ────────────────────────────────────────────────────────────────
+    async function submitPost() {
+      if (submitBtn.disabled) return;
+      const content = contentEl.value.trim();
+      if (!content) return;
+
+      setLoading(true);
+      try {
+        const formData = new FormData();
+        formData.append('content', content);
+        selectedFiles.filter(Boolean).forEach(f => formData.append('photos', f));
+        await axios.post('/feed/post', formData, {
+          headers: {
+            'x-csrf-token': csrfToken
+          }
+        });
+        closeModal();
+      } catch (err) {
+        alert(err.response?.data?.message || 'Something went wrong. Try again.');
+      } finally {
+        setLoading(false);
+        onInput();
+      }
+    }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      submitBtn.style.opacity = loading ? '0.7' : '1';
+      submitIcon.className = `fa-solid fa-${loading ? 'spinner fa-spin' : 'paper-plane'} text-[11px]`;
+      submitLabel.textContent = loading ? 'Posting…' : 'Post';
+    }
+  </script>

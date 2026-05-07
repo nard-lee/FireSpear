@@ -1,0 +1,219 @@
+<div class="min-h-screen py-8 px-4" style="background: #0c0a09;">
+  <div class="max-w-4xl mx-auto h-full flex flex-col gap-3">
+
+    <%# Search + filters — outside the card %>
+    <div class="flex items-center gap-2">
+      <div class="relative flex-1">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[11px] text-stone-600"></i>
+        <input type="text" id="search-input" placeholder="Search users…"
+          class="w-full pl-9 pr-4 py-2.5 rounded-xl text-[13px] text-stone-300 placeholder-stone-600 outline-none border-none transition-all duration-200"
+          style="background: #1c1917;" />
+      </div>
+      <div class="relative">
+        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-stone-600 pointer-events-none"></i>
+        <select id="role-filter"
+          class="pl-3.5 pr-8 py-2.5 rounded-xl text-[13px] text-stone-400 outline-none border-none cursor-pointer appearance-none transition-all duration-200"
+          style="background: #1c1917;">
+          <option value="">All roles</option>
+          <option>ADMIN</option>
+          <option>MODERATOR</option>
+          <option>USER</option>
+        </select>
+      </div>
+      <div class="relative">
+        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-stone-600 pointer-events-none"></i>
+        <select id="status-filter"
+          class="pl-3.5 pr-8 py-2.5 rounded-xl text-[13px] text-stone-400 outline-none border-none cursor-pointer appearance-none transition-all duration-200"
+          style="background: #1c1917;">
+          <option value="">All statuses</option>
+          <option>ACTIVE</option>
+          <option>BANNED</option>
+          <option>INACTIVE</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="rounded-2xl overflow-hidden flex flex-col" style="background: #1c1917;">
+
+      <%# Toolbar %>
+      <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.06]">
+        <div class="flex items-center gap-3">
+          <label class="flex items-center cursor-pointer group">
+            <input type="checkbox" id="check-all" class="peer hidden" />
+            <div class="w-4 h-4 rounded border border-stone-700 flex items-center justify-center transition-colors group-hover:border-stone-500">
+              <svg class="w-2.5 h-2.5 text-stone-100 opacity-0 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+          </label>
+          <button onclick="window.location.reload()" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-stone-600 hover:text-stone-400 cursor-pointer bg-transparent border-none">
+            <i class="fa-solid fa-rotate-right text-[11px]"></i>
+          </button>
+          <p class="text-[10px] uppercase tracking-widest text-stone-600 font-medium">User Management</p>
+        </div>
+
+        <div class="flex items-center gap-2 text-[12px] text-stone-600">
+          <span><%= (currentPage - 1) * 10 + 1 %>–<%= Math.min(currentPage * 10, total) %> of <%= total %></span>
+          <div class="flex items-center gap-0.5">
+            <% if (currentPage > 1) { %>
+            <a href="/users?page=<%= currentPage - 1 %>" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-stone-400">
+              <i class="fa-solid fa-chevron-left text-[10px]"></i>
+            </a>
+            <% } else { %>
+            <span class="p-1.5 text-stone-700 cursor-not-allowed">
+              <i class="fa-solid fa-chevron-left text-[10px]"></i>
+            </span>
+            <% } %>
+            <% if (currentPage < pages) { %>
+            <a href="/users?page=<%= currentPage + 1 %>" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-stone-400">
+              <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            </a>
+            <% } else { %>
+            <span class="p-1.5 text-stone-700 cursor-not-allowed">
+              <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            </span>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <%# Rows %>
+      <div id="user-list" class="overflow-y-auto flex-1 min-h-0">
+        <% users.forEach((user, i) => { %>
+        <label class="user-row relative flex items-center gap-4 py-2.5 px-4 cursor-pointer group transition-all"
+          data-name="<%= user.name.toLowerCase() %>"
+          data-email="<%= user.email.toLowerCase() %>"
+          data-role="<%= user.role %>"
+          data-status="<%= user.status %>">
+
+          <input type="checkbox" data-id="<%= user.id %>" class="row-checkbox peer hidden" />
+          <div class="chk w-4 h-4 rounded border border-stone-700 shrink-0 flex items-center justify-center transition-colors group-hover:border-stone-500">
+            <svg class="w-2.5 h-2.5 text-stone-100 opacity-0 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+
+          <p class="w-36 text-[13px] font-medium text-stone-200 truncate shrink-0"><%= user.name %></p>
+          <p class="flex-1 text-[13px] text-stone-500 truncate"><%= user.email %></p>
+
+          <span class="text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0
+            <%= user.role === 'ADMIN' ? 'text-orange-400' :
+                user.role === 'MODERATOR' ? 'text-blue-400' :
+                'text-stone-500' %>"
+            style="background: rgba(255,255,255,0.05);">
+            <%= user.role %>
+          </span>
+
+          <span class="text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0
+            <%= user.status === 'ACTIVE' ? 'text-green-400' :
+                user.status === 'BANNED' ? 'text-red-400' :
+                'text-stone-500' %>"
+            style="background: rgba(255,255,255,0.05);">
+            <%= user.status %>
+          </span>
+
+          <p class="text-[11px] text-stone-600 shrink-0 w-24 text-right">
+            <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+          </p>
+
+          <%# Three-dot menu %>
+          <div class="row-menu relative shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="event.preventDefault(); toggleMenu(this)"
+              class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/5 text-stone-600 hover:text-stone-400 transition-colors bg-transparent border-none cursor-pointer">
+              <i class="fa-solid fa-ellipsis-vertical text-[12px]"></i>
+            </button>
+            <div class="menu-dropdown hidden absolute right-0 top-8 w-40 rounded-xl border border-white/[0.08] py-1 z-50"
+              style="background: #292524; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+              <button onclick="event.preventDefault()"
+                class="flex items-center gap-2 w-full px-3 py-2 text-[13px] text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors bg-transparent border-none cursor-pointer text-left">
+                <i class="fa-regular fa-pen-to-square text-[11px] w-3.5 text-center"></i>
+                Edit user
+              </button>
+              <% if (user.status === 'BANNED') { %>
+              <button onclick="event.preventDefault()"
+                class="flex items-center gap-2 w-full px-3 py-2 text-[13px] text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors bg-transparent border-none cursor-pointer text-left">
+                <i class="fa-solid fa-check text-[11px] w-3.5 text-center"></i>
+                Unban user
+              </button>
+              <% } else { %>
+              <button onclick="event.preventDefault()"
+                class="flex items-center gap-2 w-full px-3 py-2 text-[13px] text-stone-400 hover:text-stone-200 hover:bg-white/5 transition-colors bg-transparent border-none cursor-pointer text-left">
+                <i class="fa-solid fa-ban text-[11px] w-3.5 text-center"></i>
+                Ban user
+              </button>
+              <% } %>
+              <div class="h-px bg-white/[0.06] mx-2 my-1"></div>
+              <button onclick="event.preventDefault()"
+                class="flex items-center gap-2 w-full px-3 py-2 text-[13px] text-red-500 hover:bg-red-500/10 transition-colors bg-transparent border-none cursor-pointer text-left">
+                <i class="fa-regular fa-trash-can text-[11px] w-3.5 text-center"></i>
+                Delete user
+              </button>
+            </div>
+          </div>
+
+        </label>
+        <% }) %>
+      </div>
+
+      <div id="empty-state" class="hidden py-12 text-center text-[13px] text-stone-600">
+        No users match your filters.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .row-checkbox:checked + .chk svg { opacity: 1; }
+  .row-checkbox:checked + .chk { border-color: #e7e5e4; }
+  #check-all:checked + div svg { opacity: 1; }
+  #check-all:checked + div { border-color: #e7e5e4; }
+
+  .user-row {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.1s;
+  }
+  .user-row:hover { background: rgba(255,255,255,0.03); }
+
+  #role-filter option,
+  #status-filter option {
+    background: #292524;
+    color: #d6d3d1;
+  }
+</style>
+
+<script>
+  document.getElementById('check-all').addEventListener('change', function () {
+    document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = this.checked);
+  });
+
+  function toggleMenu(btn) {
+    const dropdown = btn.nextElementSibling;
+    const isOpen = !dropdown.classList.contains('hidden');
+    document.querySelectorAll('.menu-dropdown').forEach(d => d.classList.add('hidden'));
+    if (!isOpen) dropdown.classList.remove('hidden');
+  }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.menu-dropdown').forEach(d => d.classList.add('hidden'));
+  });
+
+  function filterRows() {
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const role = document.getElementById('role-filter').value;
+    const status = document.getElementById('status-filter').value;
+    let visible = 0;
+    document.querySelectorAll('.user-row').forEach(row => {
+      const show = (!search || row.dataset.name.includes(search) || row.dataset.email.includes(search)) &&
+        (!role || row.dataset.role === role) &&
+        (!status || row.dataset.status === status);
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('empty-state').classList.toggle('hidden', visible > 0);
+  }
+
+  document.getElementById('search-input').addEventListener('input', filterRows);
+  document.getElementById('role-filter').addEventListener('change', filterRows);
+  document.getElementById('status-filter').addEventListener('change', filterRows);
+</script>

@@ -1,0 +1,72 @@
+<div class="min-h-screen flex flex-col" style="background: #fafaf9;">
+
+  <%# Nav %>
+  <nav class="border-b border-stone-200 px-8" style="background: #1c1917;">
+    <div class="max-w-5xl mx-auto flex items-center justify-between h-14">
+      <a href="/" class="flex items-center gap-2.5 no-underline">
+        <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background: #E24B4A;">
+          <i class="fa-solid fa-fire text-white text-xs"></i>
+        </div>
+        <span class="text-sm font-medium tracking-wide" style="color: #fafaf9;">FireSpear</span>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="/log-in" class="px-3.5 py-1.5 rounded-lg text-[13px] text-stone-400 hover:text-stone-50 hover:bg-white/[0.05] transition-colors no-underline">
+          Log in
+        </a>
+        <a href="/register" class="px-3.5 py-1.5 rounded-lg text-[13px] font-medium text-white transition-colors no-underline" style="background: #E24B4A;">
+          Sign up
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <%# Hero %>
+  <div class="flex-1 flex flex-col items-center justify-center px-4 py-24 text-center">
+    <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm" style="background: #E24B4A;">
+      <i class="fa-solid fa-fire text-white text-xl"></i>
+    </div>
+    <h1 class="text-4xl font-semibold text-stone-900 tracking-tight mb-4">Manage your community<br>with confidence</h1>
+    <p class="text-base text-stone-400 max-w-md mb-10 leading-relaxed">FireSpear gives you the tools to manage users, moderate content, and keep your platform running smoothly — all in one place.</p>
+    <div class="flex items-center gap-3">
+      <a href="/signup" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white transition-colors no-underline" style="background: #E24B4A;">
+        Get started
+        <i class="fa-solid fa-arrow-right text-[11px]"></i>
+      </a>
+      <a href="/login" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-stone-600 bg-white border border-stone-200 hover:bg-stone-50 transition-colors no-underline">
+        Log in to your account
+      </a>
+    </div>
+  </div>
+
+  <%# Feature pills %>
+  <div class="flex items-center justify-center gap-3 pb-16 flex-wrap px-4">
+    <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 text-[13px] text-stone-500">
+      <i class="fa-solid fa-users text-[11px] text-stone-400"></i>
+      User management
+    </div>
+    <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 text-[13px] text-stone-500">
+      <i class="fa-solid fa-shield-halved text-[11px] text-stone-400"></i>
+      Role & permissions
+    </div>
+    <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 text-[13px] text-stone-500">
+      <i class="fa-solid fa-ban text-[11px] text-stone-400"></i>
+      Ban & moderation
+    </div>
+    <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 text-[13px] text-stone-500">
+      <i class="fa-solid fa-chart-simple text-[11px] text-stone-400"></i>
+      Activity tracking
+    </div>
+  </div>
+
+  <%# Footer %>
+  <div class="border-t border-stone-200 py-5 px-8">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <span class="text-xs text-stone-400">© 2024 FireSpear. All rights reserved.</span>
+      <div class="flex items-center gap-4 text-xs text-stone-400">
+        <a href="#" class="hover:text-stone-600 transition-colors no-underline">Privacy</a>
+        <a href="#" class="hover:text-stone-600 transition-colors no-underline">Terms</a>
+      </div>
+    </div>
+  </div>
+
+</div>

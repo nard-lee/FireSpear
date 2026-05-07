@@ -1,0 +1,100 @@
+<div class="min-h-screen py-8 px-4" style="background: #0c0a09;">
+  <div class="max-w-xl mx-auto space-y-3">
+    <% posts.forEach((post, postIndex) => { %>
+    <div class="rounded-2xl overflow-hidden" style="background: #1a1917; border: 0.5px solid rgba(255,255,255,0.07);">
+
+      <!-- User info -->
+      <div class="flex items-center gap-3 px-4 pt-4 pb-3">
+        <% if (post.user.avatar) { %>
+          <img src="<%= post.user.avatar %>" class="w-9 h-9 rounded-full object-cover flex-shrink-0" style="border: 1.5px solid rgba(255,255,255,0.08);" />
+        <% } else { %>
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold text-white flex-shrink-0" style="background: #E24B4A; letter-spacing: 0.02em;">
+            <%= post.user.name.charAt(0).toUpperCase() %>
+          </div>
+        <% } %>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold" style="color: #f2f0ec;"><%= post.user.name %></p>
+          <p class="text-xs" style="color: #5a5753; margin-top: 1px;"><%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+        </div>
+        <button class="w-7 h-7 rounded-lg flex items-center justify-center" style="background: transparent; border: none; color: #5a5753; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">
+          <i class="fa-solid fa-ellipsis" style="font-size: 13px;"></i>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <p class="px-4 pb-3 text-sm leading-relaxed" style="color: #b0ada8;"><%= post.content %></p>
+
+      <!-- Photos Carousel -->
+      <% if (post.photos && post.photos.length > 0) { %>
+      <div class="relative" id="carousel-<%= postIndex %>">
+        <div class="overflow-hidden" style="border-top: 0.5px solid rgba(255,255,255,0.06); border-bottom: 0.5px solid rgba(255,255,255,0.06);">
+          <div class="flex transition-transform duration-300 ease-in-out" id="track-<%= postIndex %>">
+            <% post.photos.forEach(photo => { %>
+              <div class="min-w-full">
+                <img src="<%= photo.url %>" class="w-full object-cover" style="max-height: 320px; display: block;" />
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <% if (post.photos.length > 1) { %>
+        <!-- Arrows -->
+        <button onclick="slide(<%= postIndex %>, -1)"
+          class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white"
+          style="background: rgba(15,14,13,0.75); border: 0.5px solid rgba(255,255,255,0.15); backdrop-filter: blur(4px); font-size: 11px; cursor: pointer;">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button onclick="slide(<%= postIndex %>, 1)"
+          class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white"
+          style="background: rgba(15,14,13,0.75); border: 0.5px solid rgba(255,255,255,0.15); backdrop-filter: blur(4px); font-size: 11px; cursor: pointer;">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+        <!-- Dots -->
+        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 items-center">
+          <% post.photos.forEach((_, i) => { %>
+            <div class="dot-<%= postIndex %> rounded-full transition-all duration-300"
+              style="width: <%= i === 0 ? '16px' : '5px' %>; height: 5px; background: <%= i === 0 ? 'white' : 'rgba(255,255,255,0.35)' %>;"></div>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+      <% } %>
+
+      <!-- Action bar -->
+      <div class="flex items-center gap-1 px-3 py-2" style="border-top: 0.5px solid rgba(255,255,255,0.06);">
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs" style="background: transparent; border: none; color: #6b6864; cursor: pointer; font-family: inherit;" onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.color='#f2f0ec'" onmouseout="this.style.background='transparent';this.style.color='#6b6864'">
+          <i class="fa-regular fa-heart" style="font-size: 14px;"></i>
+          <span>Like</span>
+        </button>
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs" style="background: transparent; border: none; color: #6b6864; cursor: pointer; font-family: inherit;" onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.color='#f2f0ec'" onmouseout="this.style.background='transparent';this.style.color='#6b6864'">
+          <i class="fa-regular fa-comment" style="font-size: 14px;"></i>
+          <span>Comment</span>
+        </button>
+        <div class="flex-1"></div>
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs" style="background: transparent; border: none; color: #6b6864; cursor: pointer; font-family: inherit;" onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.color='#f2f0ec'" onmouseout="this.style.background='transparent';this.style.color='#6b6864'">
+          <i class="fa-regular fa-bookmark" style="font-size: 14px;"></i>
+        </button>
+      </div>
+
+    </div>
+    <% }) %>
+  </div>
+</div>
+
+<script>
+  const carouselState = {};
+  function slide(id, dir) {
+    const track = document.getElementById(`track-${id}`);
+    const dots = document.querySelectorAll(`.dot-${id}`);
+    const total = dots.length;
+    if (!carouselState[id]) carouselState[id] = 0;
+    carouselState[id] = (carouselState[id] + dir + total) % total;
+    track.style.transform = `translateX(-${carouselState[id] * 100}%)`;
+    dots.forEach((dot, i) => {
+      const active = i === carouselState[id];
+      dot.style.width = active ? '16px' : '5px';
+      dot.style.background = active ? 'white' : 'rgba(255,255,255,0.35)';
+    });
+  }
+</script>

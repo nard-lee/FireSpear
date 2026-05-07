@@ -1,0 +1,10 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="text-center">
+        <h1 class="text-4xl font-semibold text-gray-900 mb-4">500</h1>
+        <p class="text-gray-500 mb-6"><%= message %></p>
+        <% if (typeof stack !== 'undefined' && stack) { %>
+            <pre class="text-left text-xs text-red-500 bg-red-50 p-4 rounded mb-6 overflow-auto"><%= stack %></pre>
+        <% } %>
+        <a href="/" class="text-sm text-gray-700 hover:underline">Go Home</a>
+    </div>
+</div>
