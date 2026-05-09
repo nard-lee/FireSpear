@@ -1,4 +1,4 @@
--- Active: 1777982135578@@127.0.0.1@3306
+
 import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import authRoutes from '../modules/auth/auth.routes.js';
